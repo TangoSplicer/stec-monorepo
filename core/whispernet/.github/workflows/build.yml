@@ -1,0 +1,37 @@
+name: WhisperNet aarch64 Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: aarch64-linux-android
+
+    - name: Install cargo-ndk
+      run: cargo install cargo-ndk
+
+    - name: Build with cargo-ndk (aarch64)
+      # Changed '-p 24' to '--platform 24' to prevent the package conflict panic
+      run: cargo ndk -t arm64-v8a --platform 24 build --release
+
+    - name: Upload Compiled Binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: whispernet-aarch64-binary
+        path: target/aarch64-linux-android/release/whispernet
+        retention-days: 7

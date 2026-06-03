@@ -1,0 +1,20 @@
+# Rust
+core/target/
+**/*.rs.bk
+
+# Node / Svelte
+ui/node_modules/
+ui/dist/
+ui/.svelte-kit/
+
+# Native Android Exclusions
+android/app/build/
+android/.gradle/
+android/local.properties
+android/.idea/
+android/app/.cxx/
+
+# Environment
+.env
+.env.*
+!.env.example

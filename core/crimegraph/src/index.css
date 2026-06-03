@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-base: #0c0e14;
+    --bg-surface: #14171f;
+    --bg-elevated: #1c2030;
+    --bg-input: #0f1219;
+    --border: #252a3a;
+    --border-focus: #3a7bd5;
+    --text-primary: #dde1ec;
+    --text-secondary: #7880a0;
+    --text-muted: #454d66;
+    --accent: #3a7bd5;
+    --accent-hover: #4a8be5;
+    --confirm: #1d9a6c;
+    --warn: #c8830a;
+    --danger: #c0392b;
+  }
+
+  body {
+    @apply bg-[#0c0e14] text-[#dde1ec] font-sans antialiased;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Force standard inputs to adopt dark theme behaviors (like cursor color) */
+  input {
+    color-scheme: dark;
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

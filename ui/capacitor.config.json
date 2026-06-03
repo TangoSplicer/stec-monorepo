@@ -1,0 +1,9 @@
+{
+  "appId": "com.stec.daemon",
+  "appName": "STEC",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "android": {
+    "path": "../android"
+  }
+}
