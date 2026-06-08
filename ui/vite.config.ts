@@ -1,7 +1,11 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte()],
-})
+  plugins: [react()],
+  esbuild: {
+    // 🚀 PHASE 9: Security Hardening - strips all debug output from the final APK
+    drop: ['console', 'debugger'],
+  },
+});
