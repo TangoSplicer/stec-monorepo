@@ -1,7 +1,7 @@
-use arti_client::TorClient;
-use tor_rtcompat::PreferredRuntime;
-use tokio::io::AsyncWriteExt;
 use anyhow::Result;
+use arti_client::TorClient;
+use tokio::io::AsyncWriteExt;
+use tor_rtcompat::PreferredRuntime;
 
 pub struct P2PClient {
     pub tor_client: TorClient<PreferredRuntime>,
@@ -13,7 +13,7 @@ impl P2PClient {
         // Hidden services typically route traffic over port 80 virtually
         let mut stream = self.tor_client.connect((target_onion, 80)).await?;
         stream.write_all(&msg).await?;
-        
+
         // Ensure all bytes are pushed through the circuit before closing
         stream.flush().await?;
         Ok(())

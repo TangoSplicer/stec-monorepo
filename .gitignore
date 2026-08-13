@@ -1,20 +1,37 @@
 # Rust
-core/target/
+**/target/
 **/*.rs.bk
 
-# Node / Svelte
+# Node and generated web assets
 ui/node_modules/
 ui/dist/
+ui/coverage/
+ui/.vite/
 ui/.svelte-kit/
 
-# Native Android Exclusions
+# Native Android build products and local configuration
 android/app/build/
 android/.gradle/
 android/local.properties
 android/.idea/
 android/app/.cxx/
+android/release.properties
+android/captures/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/capacitor.settings.gradle
+android/app/capacitor.build.gradle
 
-# Environment
+# Environment and local secrets
 .env
 .env.*
 !.env.example
+*.keystore
+*.jks
+*.mobileprovision
+
+# Operating system and editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp

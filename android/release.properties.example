@@ -1,0 +1,7 @@
+# Copy this file to android/release.properties in the controlled release environment.
+# Never commit release.properties, a keystore, a key alias, or any password.
+# Store all signing material in the organisation-approved secret-management service.
+storeFile=/absolute/path/to/release-signing-key.jks
+storePassword=REPLACE_IN_SECURE_BUILD_ENVIRONMENT
+keyAlias=REPLACE_IN_SECURE_BUILD_ENVIRONMENT
+keyPassword=REPLACE_IN_SECURE_BUILD_ENVIRONMENT

@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
-use ed25519_dalek::{SigningKey, VerifyingKey, Signature, Signer, Verifier};
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
+use serde::{Deserialize, Serialize};
 use x25519_dalek::PublicKey as X25519PublicKey;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -14,9 +14,9 @@ impl HandshakeMessage {
     pub fn new(identity_sk: &SigningKey, ephemeral_pk: &X25519PublicKey) -> Self {
         let identity_vk = VerifyingKey::from(identity_sk);
         let ephemeral_bytes = ephemeral_pk.as_bytes();
-        
+
         let signature = identity_sk.sign(ephemeral_bytes).to_bytes();
-        
+
         Self {
             identity_key: identity_vk.to_bytes(),
             ephemeral_key: *ephemeral_bytes,
@@ -38,12 +38,12 @@ impl HandshakeMessage {
         if self.signature.len() != 64 {
             return false;
         }
-        
+
         if let Ok(vk) = VerifyingKey::from_bytes(&self.identity_key) {
             let mut sig_bytes = [0u8; 64];
             sig_bytes.copy_from_slice(&self.signature);
             let sig = Signature::from_bytes(&sig_bytes);
-            
+
             vk.verify(&self.ephemeral_key, &sig).is_ok()
         } else {
             false

@@ -1,45 +1,88 @@
 import { create } from 'zustand';
-import { getDb } from '../capacitor/db';
+import { closeDatabase, getDb, PlaintextDatabaseMigrationRequiredError } from '../capacitor/db';
+import { authenticateWithBiometrics, isBiometricAvailable } from '../capacitor/biometrics';
+import { hashPassword, MINIMUM_SECRET_LENGTH, verifyPassword } from '../capacitor/crypto';
 
-export interface User { id: string; badge: string; name: string; role: 'admin' | 'analyst'; }
+const LAST_USER_KEY = 'crimegraph_last_user_id';
+
+export interface User {
+  id: string;
+  badge: string;
+  name: string;
+  role: 'admin' | 'analyst';
+  biometric_enabled?: number;
+}
 
 interface AuthState {
   currentUser: User | null;
   isFirstBoot: boolean;
   isAppReady: boolean;
+  storageError: string | null;
   intentionalBackground: boolean;
   setIntentionalBackground: (state: boolean) => void;
   initializeAuth: () => Promise<void>;
   setupMasterAdmin: (password: string) => Promise<void>;
-  login: (badge: string, pin: string) => Promise<boolean>;
+  login: (badge: string, password: string) => Promise<boolean>;
   biometricLogin: () => Promise<boolean>;
   adminLogin: (password: string) => Promise<boolean>;
-  addAnalyst: (badge: string, name: string, pin: string) => Promise<void>;
+  addAnalyst: (badge: string, name: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-const hashSecret = async (secret: string) => {
-  try {
-    if (window.crypto && window.crypto.subtle) {
-      const msgBuffer = new TextEncoder().encode(secret);
-      const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-  } catch (e) {}
-  let hash = 0;
-  for (let i = 0; i < secret.length; i++) {
-    const char = secret.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; 
+function createId(prefix: string): string {
+  if (!globalThis.crypto?.randomUUID) throw new Error('Secure identifier generation is unavailable on this device.');
+  return `${prefix}_${globalThis.crypto.randomUUID()}`;
+}
+
+function normaliseBadge(badge: string): string {
+  const value = badge.trim().toUpperCase();
+  if (!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(value)) {
+    throw new Error('Badge must contain 3–32 letters, numbers, or hyphens.');
   }
-  return "fb_" + Math.abs(hash).toString(16);
-};
+  return value;
+}
+
+function normaliseName(name: string): string {
+  const value = name.trim();
+  if (value.length < 2 || value.length > 128) throw new Error('Operator name must contain 2–128 characters.');
+  return value;
+}
+
+function assertStrongSecret(secret: string): void {
+  if (secret.length < MINIMUM_SECRET_LENGTH) {
+    throw new Error(`Password must contain at least ${MINIMUM_SECRET_LENGTH} characters.`);
+  }
+}
+
+function mapUser(row: Record<string, unknown>): User {
+  if (typeof row.id !== 'string' || typeof row.badge !== 'string' || typeof row.name !== 'string' || (row.role !== 'admin' && row.role !== 'analyst')) {
+    throw new Error('Stored user record is invalid.');
+  }
+  return {
+    id: row.id,
+    badge: row.badge,
+    name: row.name,
+    role: row.role,
+    biometric_enabled: typeof row.biometric_enabled === 'number' ? row.biometric_enabled : 0,
+  };
+}
+
+async function readUserByBadge(badge: string, role: User['role']): Promise<{ user: User; passwordHash: string } | null> {
+  const db = await getDb();
+  const result = await db.query(
+    'SELECT id, badge, display_name AS name, role, password_hash, biometric_enabled FROM users WHERE badge = ? AND role = ? AND is_active = 1 LIMIT 1',
+    [badge, role],
+  );
+  const row = result.values?.[0] as Record<string, unknown> | undefined;
+  if (!row || typeof row.password_hash !== 'string') return null;
+  return { user: mapUser(row), passwordHash: row.password_hash };
+}
 
 export const useAuthStore = create<AuthState>((set) => ({
   currentUser: null,
   isFirstBoot: true,
   isAppReady: false,
+  storageError: null,
   intentionalBackground: false,
 
   setIntentionalBackground: (state) => set({ intentionalBackground: state }),
@@ -47,71 +90,92 @@ export const useAuthStore = create<AuthState>((set) => ({
   initializeAuth: async () => {
     try {
       const db = await getDb();
-      try { await db.query('SELECT badge FROM users LIMIT 1'); } 
-      catch (e) { await db.run('DROP TABLE IF EXISTS users'); }
-      await db.run('CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, badge TEXT UNIQUE, name TEXT, hash TEXT, role TEXT, created_at TEXT)');
-      const res = await db.query('SELECT COUNT(*) as count FROM users');
-      set({ isFirstBoot: (res.values?.[0]?.count || 0) === 0, isAppReady: true });
-    } catch (e) { set({ isAppReady: true }); }
+      const result = await db.query("SELECT COUNT(*) AS count FROM users WHERE role = 'admin' AND is_active = 1");
+      const count = Number((result.values?.[0] as Record<string, unknown> | undefined)?.count ?? 0);
+      set({ isFirstBoot: count === 0, isAppReady: true });
+    } catch (error) {
+      const message = error instanceof PlaintextDatabaseMigrationRequiredError
+        ? 'A legacy plaintext evidence store requires a controlled encrypted migration before this release can open it.'
+        : 'The local encrypted evidence store could not be opened.';
+      set({ isFirstBoot: false, storageError: message, isAppReady: true });
+    }
   },
 
   setupMasterAdmin: async (password: string) => {
+    assertStrongSecret(password);
     const db = await getDb();
-    const hash = await hashSecret(password);
+    const existing = await db.query("SELECT id FROM users WHERE role = 'admin' AND is_active = 1 LIMIT 1");
+    if (existing.values?.length) throw new Error('A master administrator already exists.');
     const now = new Date().toISOString();
-    await db.run('INSERT INTO users (id, badge, name, hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)', ['admin_001', 'ADMIN', 'Master Admin', hash, 'admin', now]);
-    const testHash = await hashSecret('123456');
-    await db.run('INSERT INTO users (id, badge, name, hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)', ['test_001', 'TEST-99', 'Test Analyst', testHash, 'analyst', now]);
+    await db.run(
+      'INSERT INTO users (id, badge, display_name, password_hash, role, biometric_enabled, created_at, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [createId('admin'), 'ADMIN', 'Master Administrator', await hashPassword(password), 'admin', 0, now, 1],
+    );
     set({ isFirstBoot: false });
   },
 
-  login: async (badge: string, pin: string) => {
+  login: async (badge: string, password: string) => {
     try {
+      const record = await readUserByBadge(normaliseBadge(badge), 'analyst');
+      if (!record || !(await verifyPassword(password, record.passwordHash))) return false;
       const db = await getDb();
-      const inputHash = await hashSecret(pin);
-      const res = await db.query('SELECT * FROM users WHERE badge = ? AND hash = ? AND role = ?', [badge.toUpperCase(), inputHash, 'analyst']);
-      if (res.values && res.values.length > 0) {
-        localStorage.setItem('crimegraph_last_user', badge.toUpperCase());
-        set({ currentUser: res.values[0] as User });
-        return true;
-      }
+      await db.run('UPDATE users SET last_login = ? WHERE id = ?', [new Date().toISOString(), record.user.id]);
+      localStorage.setItem(LAST_USER_KEY, record.user.id);
+      set({ currentUser: record.user });
+      return true;
+    } catch {
       return false;
-    } catch (e) { return false; }
+    }
   },
 
   biometricLogin: async () => {
     try {
-      const lastBadge = localStorage.getItem('crimegraph_last_user');
-      if (!lastBadge) return false;
+      const userId = localStorage.getItem(LAST_USER_KEY);
+      if (!userId || !(await isBiometricAvailable())) return false;
+      if (!(await authenticateWithBiometrics('Verify your identity to unlock CrimeGraph.'))) return false;
       const db = await getDb();
-      const res = await db.query('SELECT * FROM users WHERE badge = ? AND role = ?', [lastBadge, 'analyst']);
-      if (res.values && res.values.length > 0) {
-        set({ currentUser: res.values[0] as User });
-        return true;
-      }
+      const result = await db.query(
+        "SELECT id, badge, display_name AS name, role, biometric_enabled FROM users WHERE id = ? AND role = 'analyst' AND is_active = 1 LIMIT 1",
+        [userId],
+      );
+      const row = result.values?.[0] as Record<string, unknown> | undefined;
+      if (!row || Number(row.biometric_enabled) !== 1) return false;
+      set({ currentUser: mapUser(row) });
+      return true;
+    } catch {
       return false;
-    } catch (e) { return false; }
+    }
   },
 
   adminLogin: async (password: string) => {
     try {
       const db = await getDb();
-      const inputHash = await hashSecret(password);
-      const res = await db.query('SELECT * FROM users WHERE role = ? AND hash = ?', ['admin', inputHash]);
-      if (res.values && res.values.length > 0) {
-        set({ currentUser: res.values[0] as User });
-        return true;
-      }
+      const result = await db.query(
+        "SELECT id, badge, display_name AS name, role, password_hash, biometric_enabled FROM users WHERE role = 'admin' AND is_active = 1 LIMIT 1",
+      );
+      const row = result.values?.[0] as Record<string, unknown> | undefined;
+      if (!row || typeof row.password_hash !== 'string' || !(await verifyPassword(password, row.password_hash))) return false;
+      const user = mapUser(row);
+      await db.run('UPDATE users SET last_login = ? WHERE id = ?', [new Date().toISOString(), user.id]);
+      set({ currentUser: user });
+      return true;
+    } catch {
       return false;
-    } catch (e) { return false; }
+    }
   },
 
-  addAnalyst: async (badge: string, name: string, pin: string) => {
+  addAnalyst: async (badge: string, name: string, password: string) => {
+    assertStrongSecret(password);
     const db = await getDb();
-    const hash = await hashSecret(pin);
-    const id = `user_${Date.now()}`;
-    await db.run('INSERT INTO users (id, badge, name, hash, role, created_at) VALUES (?, ?, ?, ?, ?, ?)', [id, badge.toUpperCase(), name, hash, 'analyst', new Date().toISOString()]);
+    const now = new Date().toISOString();
+    await db.run(
+      'INSERT INTO users (id, badge, display_name, password_hash, role, biometric_enabled, created_at, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [createId('user'), normaliseBadge(badge), normaliseName(name), await hashPassword(password), 'analyst', 0, now, 1],
+    );
   },
 
-  logout: () => set({ currentUser: null })
+  logout: () => {
+    void closeDatabase();
+    set({ currentUser: null, intentionalBackground: false });
+  },
 }));

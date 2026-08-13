@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use tracing::{info, Level};
+use tracing::{Level, info};
 use tracing_subscriber::FmtSubscriber;
 
 #[derive(Parser)]
@@ -27,18 +27,17 @@ async fn main() -> anyhow::Result<()> {
     let subscriber = FmtSubscriber::builder()
         .with_max_level(Level::INFO)
         .finish();
-    tracing::subscriber::set_global_default(subscriber)
-        .expect("Failed to set tracing subscriber");
+    tracing::subscriber::set_global_default(subscriber).expect("Failed to set tracing subscriber");
 
     let cli = Cli::parse();
 
     match &cli.command {
         Commands::Start { bind } => {
             info!("Starting STEC Daemon on {}...", bind);
-            
+
             // TODO: Initialize Aletheia storage
             // TODO: Spin up WhisperNet listener
-            
+
             // Keep the daemon alive
             tokio::signal::ctrl_c().await?;
             info!("Daemon shutting down gracefully.");
