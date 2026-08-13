@@ -9,7 +9,7 @@ tor-hsservice = "0.42.0"
 tor-rtcompat = "0.42.0"
 tor-cell = "0.42.0"
 tor-hscrypto = "0.42.0"
-rusqlite = { version = "0.36.0", features = ["bundled-sqlcipher-vendored-openssl"] }
+rusqlite = { version = "0.39.0", features = ["bundled-sqlcipher-vendored-openssl"] }
 ed25519-dalek = { version = "2.1", features = ["rand_core", "serde"] }
 x25519-dalek = { version = "2.0", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
