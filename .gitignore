@@ -8,6 +8,7 @@ ui/dist/
 ui/coverage/
 ui/.vite/
 ui/.svelte-kit/
+ui/public/assets/sql-wasm.wasm
 
 # Native Android build products and local configuration
 android/app/build/

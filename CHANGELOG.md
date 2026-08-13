@@ -16,6 +16,10 @@ All notable engineering changes should be recorded here. This project follows [K
 
 ### Reliability and product quality
 
+- Replaced the stalled Jeep SQLite browser bootstrap with a direct SQL.js WebAssembly adapter backed by IndexedDB persistence. A clean browser origin now reaches **System Commissioning**; commissioned workspaces persist across reload and can complete administrator authentication without affecting the native SQLCipher path.
+- Added focused browser database regressions covering first-run initialization, the production WebAssembly asset location, and persistence across a close/reopen lifecycle.
+- Updated the Android Gradle Plugin and wrapper to API 35-compatible versions (AGP 8.6.1 and Gradle 8.7), removing the prior compile-SDK compatibility warning from verified debug and release builds.
+
 - Added case-scoped mutation checks, collision-resistant identifiers, referential-integrity constraints, explicit validation, and administrator-only data wiping.
 - Added a versioned local schema initializer with indexes, foreign-key enforcement, audit-chain fields, and migration tracking.
 - Lazy-loaded authenticated application routes, reducing the primary browser bundle from approximately 694 kB to approximately 222 kB before compression; the graph workspace now loads on demand.
@@ -31,8 +35,8 @@ All notable engineering changes should be recorded here. This project follows [K
 - Added Dependabot configuration, root documentation, contribution guidance, security reporting policy, release checklist, and a root license file.
 - Removed tracked Rust `target/` build artefacts and expanded ignore rules to prevent regenerated artefacts and local secrets from being committed.
 
-### Known release blockers
+### Remaining field-approval evidence gates
 
-- The current Capacitor SQLite configuration remains `no-encryption`; a sensitive deployment requires native encrypted-at-rest storage protected by platform key material.
+- The browser adapter is for development, demonstration, and browser testing. Field evidence must be collected from the native Android SQLCipher path, which uses platform-protected secret storage and is the supported sensitive-data deployment target.
 - No independent mobile, cryptographic, penetration, forensic-method, privacy, or legal validation has been performed by this change set.
-- The Android app and native Android cross-build still require a device/NDK-enabled validation environment.
+- The sandbox has no attached Android device and no KVM acceleration. APK installation, real SQLCipher open verification, hardware-backed Keystore security-level inspection, biometric prompts, background lock behavior, and backup/restore behavior remain real-device or virtualized-CI validation obligations.

@@ -1,12 +1,13 @@
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection, type CapacitorSQLitePlugin, type SQLiteDBConnection } from '@capacitor-community/sqlite';
+import { BrowserDatabaseConnection, type DatabaseConnection } from './browserDb';
 
 const DATABASE_NAME = 'crimegraph_db';
 const SCHEMA_VERSION = 2;
 const NATIVE_ENCRYPTION_MODE = 'secret';
 const sqlite: CapacitorSQLitePlugin = CapacitorSQLite;
 const sqliteConnection = new SQLiteConnection(sqlite);
-let dbInstance: SQLiteDBConnection | null = null;
+let dbInstance: DatabaseConnection | SQLiteDBConnection | null = null;
 
 export class PlaintextDatabaseMigrationRequiredError extends Error {
   constructor() {
@@ -105,6 +106,8 @@ function createDatabaseSecret(): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
+
+
 async function prepareNativeEncryption(): Promise<void> {
   const existingDatabase = await sqliteConnection.isDatabase(DATABASE_NAME);
   if (existingDatabase.result) {
@@ -120,12 +123,12 @@ async function prepareNativeEncryption(): Promise<void> {
   }
 }
 
-async function tableColumns(db: SQLiteDBConnection, table: string): Promise<Set<string>> {
+async function tableColumns(db: DatabaseConnection, table: string): Promise<Set<string>> {
   const result = await db.query(`PRAGMA table_info(${table})`);
   return new Set((result.values ?? []).map((column: Record<string, unknown>) => String(column.name)));
 }
 
-async function migrateUsers(db: SQLiteDBConnection): Promise<void> {
+async function migrateUsers(db: DatabaseConnection): Promise<void> {
   const columns = await tableColumns(db, 'users');
   if (columns.size === 0 || ['id', 'badge', 'display_name', 'password_hash', 'role', 'biometric_enabled', 'created_at', 'is_active'].every((column) => columns.has(column))) {
     await db.execute(USERS_TABLE_SQL);
@@ -140,7 +143,7 @@ async function migrateUsers(db: SQLiteDBConnection): Promise<void> {
   await db.run('INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (?, ?)', [1, new Date().toISOString()]);
 }
 
-async function migrateSchema(db: SQLiteDBConnection): Promise<void> {
+async function migrateSchema(db: DatabaseConnection): Promise<void> {
   await db.execute('PRAGMA foreign_keys = ON;');
   await db.execute('PRAGMA secure_delete = ON;');
   await db.execute('CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL);');
@@ -149,30 +152,22 @@ async function migrateSchema(db: SQLiteDBConnection): Promise<void> {
   await db.run('INSERT OR REPLACE INTO schema_migrations (version, applied_at) VALUES (?, ?)', [SCHEMA_VERSION, new Date().toISOString()]);
 }
 
-export async function getDb(): Promise<SQLiteDBConnection> {
+export async function getDb(): Promise<DatabaseConnection> {
   if (dbInstance) return dbInstance;
   return initDatabase();
 }
-
-export async function initDatabase(): Promise<SQLiteDBConnection> {
+export async function initDatabase(): Promise<DatabaseConnection> {
   try {
     const nativeRuntime = isNativeRuntime();
     if (nativeRuntime) await prepareNativeEncryption();
-
-    const existing = await sqliteConnection.isConnection(DATABASE_NAME, false);
-    const db = existing.result
-      ? await sqliteConnection.retrieveConnection(DATABASE_NAME, false)
-      : await sqliteConnection.createConnection(
-        DATABASE_NAME,
-        nativeRuntime,
-        nativeRuntime ? NATIVE_ENCRYPTION_MODE : 'no-encryption',
-        SCHEMA_VERSION,
-        false,
-      );
+    const db: DatabaseConnection = nativeRuntime
+      ? await getNativeDatabaseConnection()
+      : new BrowserDatabaseConnection();
     await db.open();
     await migrateSchema(db);
     dbInstance = db;
     return db;
+
   } catch (error) {
     if (error instanceof PlaintextDatabaseMigrationRequiredError) throw error;
     console.error('Database initialization failed.', error);
@@ -180,13 +175,19 @@ export async function initDatabase(): Promise<SQLiteDBConnection> {
   }
 }
 
+async function getNativeDatabaseConnection(): Promise<SQLiteDBConnection> {
+  const existing = await sqliteConnection.isConnection(DATABASE_NAME, false);
+  return existing.result
+    ? sqliteConnection.retrieveConnection(DATABASE_NAME, false)
+    : sqliteConnection.createConnection(DATABASE_NAME, true, NATIVE_ENCRYPTION_MODE, SCHEMA_VERSION, false);
+}
 export async function closeDatabase(): Promise<void> {
   const current = dbInstance;
   dbInstance = null;
   if (!current) return;
   try {
-    if (await current.isDBOpen()) await current.close();
+    if ((await current.isDBOpen()).result) await current.close();
   } finally {
-    await sqliteConnection.closeConnection(DATABASE_NAME, false).catch(() => undefined);
+    if (isNativeRuntime()) await sqliteConnection.closeConnection(DATABASE_NAME, false).catch(() => undefined);
   }
 }
