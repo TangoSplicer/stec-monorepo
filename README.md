@@ -43,13 +43,13 @@ The following conditions remain mandatory before a field deployment involving se
 
 | Required control | Why it remains necessary |
 |---|---|
-| Native encrypted database backed by hardware-protected key material | The present local database configuration is not encrypted at rest. |
+| Native encrypted database backed by hardware-protected key material | Android uses the native SQLCipher `secret` path and platform-protected secret storage; real-device verification remains a release gate. |
 | Independent mobile, cryptographic, and penetration testing | Repository tests cannot establish device, OS, or operational security. |
 | Data-protection impact assessment, retention policy, and access governance | These controls are organisation- and jurisdiction-specific. |
 | Forensic method validation and controlled release evidence | Engineering tests do not establish court admissibility or regulatory conformance. |
 | Tested backups, restoration procedures, incident response, and support ownership | These are operational duties that cannot be replaced by source code. |
 
-Read [PRODUCTION_READINESS_BASELINE.md](PRODUCTION_READINESS_BASELINE.md) for the initial assessment and [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) before any release decision.
+Read [PRODUCTION_READINESS_BASELINE.md](PRODUCTION_READINESS_BASELINE.md) for the initial assessment, [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) before any release decision, and [TOOLKIT_INTEGRATION.md](TOOLKIT_INTEGRATION.md) for the safe relationship between this repository, `gitflow-TUI`, and `gitfleet`.
 
 ## Contributing and security reporting
 

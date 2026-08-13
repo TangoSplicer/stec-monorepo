@@ -19,6 +19,8 @@ All notable engineering changes should be recorded here. This project follows [K
 - Replaced the stalled Jeep SQLite browser bootstrap with a direct SQL.js WebAssembly adapter backed by IndexedDB persistence. A clean browser origin now reaches **System Commissioning**; commissioned workspaces persist across reload and can complete administrator authentication without affecting the native SQLCipher path.
 - Added focused browser database regressions covering first-run initialization, the production WebAssembly asset location, and persistence across a close/reopen lifecycle.
 - Updated the Android Gradle Plugin and wrapper to API 35-compatible versions (AGP 8.6.1 and Gradle 8.7), removing the prior compile-SDK compatibility warning from verified debug and release builds.
+- Confirmed the production UI dependency graph reports zero vulnerabilities; the remaining full-audit advisory is confined to the Capacitor 6 development CLI's transitive archive tooling and is tracked for a future compatible Capacitor major upgrade rather than forcing an Android sync-breaking override.
+- Added `TOOLKIT_INTEGRATION.md`, defining the separate-tool trust boundaries and a safe future JSON-lines handoff contract for `gitflow-TUI`, `gitfleet`, and this repository.
 
 - Added case-scoped mutation checks, collision-resistant identifiers, referential-integrity constraints, explicit validation, and administrator-only data wiping.
 - Added a versioned local schema initializer with indexes, foreign-key enforcement, audit-chain fields, and migration tracking.
