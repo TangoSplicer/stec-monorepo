@@ -21,6 +21,9 @@ All notable engineering changes should be recorded here. This project follows [K
 - Updated the Android Gradle Plugin and wrapper to API 35-compatible versions (AGP 8.6.1 and Gradle 8.7), removing the prior compile-SDK compatibility warning from verified debug and release builds.
 - Confirmed the production UI dependency graph reports zero vulnerabilities; the remaining full-audit advisory is confined to the Capacitor 6 development CLI's transitive archive tooling and is tracked for a future compatible Capacitor major upgrade rather than forcing an Android sync-breaking override.
 - Added `TOOLKIT_INTEGRATION.md`, defining the separate-tool trust boundaries and a safe future JSON-lines handoff contract for `gitflow-TUI`, `gitfleet`, and this repository.
+- Migrated the isolated upgrade branch from Capacitor 6 to Capacitor 7: official packages to 7.x, `@capacitor-community/sqlite` to 7.0.3, biometric auth to 9.1.2, AGP 8.7.2, and Gradle 8.11.1. The migrated debug and unsigned release APKs build successfully with SQLCipher packaged for all configured ABIs.
+- Removed the unused `capacitor-native-biometric` dependency, which advertised Capacitor 3-era dependency metadata and was not imported by application code.
+- Verified fresh-origin browser commissioning, synthetic administrator provisioning, protected admin authentication, and Operations-screen persistence after reload on the Capacitor 7 branch.
 
 - Added case-scoped mutation checks, collision-resistant identifiers, referential-integrity constraints, explicit validation, and administrator-only data wiping.
 - Added a versioned local schema initializer with indexes, foreign-key enforcement, audit-chain fields, and migration tracking.
