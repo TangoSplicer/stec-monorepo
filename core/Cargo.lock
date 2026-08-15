@@ -5304,7 +5304,7 @@ dependencies = [
  "futures",
  "hex",
  "hkdf",
- "rand_core 0.6.4",
+ "rand_core 0.9.5",
  "rusqlite",
  "serde",
  "sha2",
