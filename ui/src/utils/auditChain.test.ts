@@ -43,4 +43,10 @@ describe('audit chain verification', () => {
 
     await expect(verifyAuditChain([first, second])).resolves.toEqual({ valid: false, checked: 1, failed_entry_id: 'audit-2' });
   });
+
+  it('reports the true position when a malformed ledger repeats an object reference', async () => {
+    const first = await entry();
+
+    await expect(verifyAuditChain([first, first])).resolves.toEqual({ valid: false, checked: 1, failed_entry_id: 'audit-1' });
+  });
 });

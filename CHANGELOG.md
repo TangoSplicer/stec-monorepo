@@ -32,6 +32,9 @@ All notable engineering changes should be recorded here. This project follows [K
 - Added a static release-policy gate that rejects regression of native SQLCipher secret mode, plaintext migration refusal, Android backup/data-extraction and cleartext policy, release hardening, or source-controlled sensitive artifacts.
 - Added CI generation of CycloneDX SBOM, JavaScript license inventory, and non-sensitive Android artifact provenance; CI now runs for `upgrade/**` and `release/**` branches as well as `main`.
 - Added deterministic negative-path tests for malformed credential verifiers, encrypted package envelopes, package JSON, oversized fields, duplicate graph identifiers, and self-referential relationships.
+- Pinned all third-party GitHub Actions to reviewed immutable commit SHAs, pinned Node and `cargo-ndk` CI behavior, prevented dependency lifecycle scripts during CI installation, and added a policy gate that rejects future mutable action references.
+- Added permission-scoped CodeQL JavaScript/TypeScript security analysis, weekly scheduled scanning, sensitive-path `CODEOWNERS` routing, and documentation for the repository ruleset required to enforce review.
+- Corrected audit-chain failure indexing for malformed repeated object references and added lifecycle fail-closed coverage for closed browser database connections.
 
 - Added case-scoped mutation checks, collision-resistant identifiers, referential-integrity constraints, explicit validation, and administrator-only data wiping.
 - Added a versioned local schema initializer with indexes, foreign-key enforcement, audit-chain fields, and migration tracking.

@@ -16,7 +16,9 @@ This index describes the documents intentionally published with the repository. 
 | `FIELD_VALIDATION_ATTESTATION.md` | Owner-confirmed completion record for the previously outstanding native and field testing. | An attestation; detailed device evidence remains in the approved private evidence system. |
 | `FIELD_PRODUCTION_APPROVAL_PLAN.md` | Required security, device, migration, signing, governance, and forensic approval work. | The authoritative field-approval plan and residual-control reference. |
 | `RELEASE_CHECKLIST.md` | Release-manager checklist for engineering, product, governance, and operational evidence. | Current checklist; owner-controlled release activities remain explicit. |
-| `RELEASE_ASSURANCE_CONTROLS.md` | Static policy, SBOM, license inventory, and artifact-provenance controls. | Explains the controls and their evidence boundaries. |
+| `RELEASE_ASSURANCE_CONTROLS.md` | Static policy, SBOM, license inventory, artifact provenance, immutable action pins, CodeQL, and review-routing controls. | Explains the controls and their evidence boundaries. |
+| `.github/CODEOWNERS` | Review routing for sensitive source, native Android, transport, forensic, scripts, and workflow paths. | Must be paired with a `main` branch ruleset to enforce required review. |
+| `.github/workflows/codeql.yml` | Permission-scoped JavaScript/TypeScript security analysis. | Produces code-scanning alerts; it does not replace manual security review. |
 | `PRODUCTION_READINESS_BASELINE.md` | Product and assurance baseline for future release decisions. | Describes the target bar, not a claim that the bar is already met. |
 | `SECURITY.md` | Vulnerability reporting and security-handling guidance. | Do not publish sensitive case data or credentials in issues. |
 | `TOOLKIT_INTEGRATION.md` | Trust boundary between `stec-monorepo`, `gitflow-TUI`, and `gitfleet`. | The three tools remain separate products with no shared credential boundary. |

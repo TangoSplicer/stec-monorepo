@@ -1,0 +1,19 @@
+# Default ownership for the sensitive STEC investigative platform.
+# Enforce these routes with a repository ruleset or branch protection policy for main.
+* @TangoSplicer
+
+# Supply-chain, release, and automation controls
+/.github/ @TangoSplicer
+/scripts/ @TangoSplicer
+
+# Native sensitive-data and application security boundaries
+/android/ @TangoSplicer
+/ui/capacitor.config.ts @TangoSplicer
+/ui/src/capacitor/ @TangoSplicer
+/ui/src/utils/auditChain.ts @TangoSplicer
+/ui/src/utils/casePackage.ts @TangoSplicer
+/ui/src/stores/authStore.ts @TangoSplicer
+
+# Forensic and authenticated-transport components
+/core/aletheia/ @TangoSplicer
+/core/whispernet/ @TangoSplicer
