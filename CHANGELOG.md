@@ -35,6 +35,8 @@ All notable engineering changes should be recorded here. This project follows [K
 - Pinned all third-party GitHub Actions to reviewed immutable commit SHAs, pinned Node and `cargo-ndk` CI behavior, prevented dependency lifecycle scripts during CI installation, and added a policy gate that rejects future mutable action references.
 - Added permission-scoped CodeQL JavaScript/TypeScript security analysis, weekly scheduled scanning, sensitive-path `CODEOWNERS` routing, and documentation for the repository ruleset required to enforce review.
 - Corrected audit-chain failure indexing for malformed repeated object references and added lifecycle fail-closed coverage for closed browser database connections.
+- Updated the Rust cryptographic and database stack after isolated hosted validation: `rusqlite` 0.39.0, `chacha20poly1305` 0.11.0, `x25519-dalek` 3.0.0, and `rand_core` 0.9.5. Replaced deprecated ratchet key and nonce slice constructors with fixed-size owned conversions required by the new AEAD API.
+- Kept the `tor-rtcompat` 0.45.0 Dependabot proposal excluded because its own Rust quality check failed; it remains a separately tracked compatibility task rather than an unvalidated release-branch change.
 
 - Added case-scoped mutation checks, collision-resistant identifiers, referential-integrity constraints, explicit validation, and administrator-only data wiping.
 - Added a versioned local schema initializer with indexes, foreign-key enforcement, audit-chain fields, and migration tracking.
