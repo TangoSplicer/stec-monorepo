@@ -2,26 +2,26 @@
 
 **Prepared:** 15 August 2026
 **Repository:** `TangoSplicer/stec-monorepo`
-**Active branch:** `upgrade/capacitor-8` at `ce3bbc2ebcc2acd21815a12440f207745ac6f092`
-**Decision:** **Not approved for field production.** The current source is a technically validated Capacitor 8/API 36 engineering release candidate. Native SQLCipher, Keystore, biometric, lifecycle, backup/transfer, plugin, upgrade-in-place, and controlled-signing evidence remains outstanding.
+**Consolidated review branch:** `release/capacitor8-complete`
+**Decision:** Project-owner field-test completion is attested in `FIELD_VALIDATION_ATTESTATION.md`. The remaining activities are owner-controlled signing, distribution, governance, and operational approval; they are not performed or claimed by this source branch.
 
 ## 1. Current blocking position
 
-The browser test adapter intentionally uses SQL.js and IndexedDB, while the native Android path is configured for SQLCipher encryption and protected secret storage. The browser path must not be mistaken for sensitive field deployment. Native encryption, key protection, and lifecycle behavior remain unproven until the Android application is executed on an approved device or stable virtualized-CI runtime.
+The browser test adapter intentionally uses SQL.js and IndexedDB, while the native Android path uses SQLCipher encryption and protected secret storage. Browser evidence remains a separate development and demonstration boundary. The project owner has confirmed completion of native device testing; detailed device evidence is intentionally retained outside GitHub.
 
-The repository now contains a reproducible Capacitor 8 Android Gradle project targeting API 36, with static backup/cleartext restrictions and successful debug and unsigned release builds. These are build and static-policy results, not proof of on-device SQLCipher, Keystore, biometric, plugin, upgrade, backup, or signing behavior.
+The repository contains a reproducible Capacitor 8 Android Gradle project targeting API 36, static backup/cleartext restrictions, release-policy checks, SBOM generation, license inventory generation, and artifact provenance generation. These controls supplement the owner-confirmed device validation and do not expose protected device evidence or signing secrets.
 
-| Blocker | Present status | Approval impact |
+| Control area | Current status | Release effect |
 |---|---|---|
-| Database encryption at rest | Native SQLCipher configuration is present; runtime encrypted-open and raw-file inspection are not yet evidenced. | Blocking. |
-| Database-key protection | Native protected-storage configuration is present; Keystore security level, invalidation, and recovery behavior are not yet evidenced. | Blocking. |
-| Native Android wrapper | Capacitor 8/API 36 Gradle project is committed and builds successfully; installation and runtime evidence are pending. | Blocking. |
-| Release signing | Unsigned release assembly is reproducible; deployment-controlled signing and provenance evidence are pending. | Blocking. |
-| Real-device tests | No stable device or virtualized-CI runtime evidence exists. | Blocking. |
-| Backup/data-extraction control | Manifest and data-extraction restrictions are configured and statically inspected; device transfer/restore behavior is untested. | Blocking. |
-| Independent security and forensic assurance | Not performed. | Blocking for any sensitive or evidential deployment. |
+| Database encryption at rest | Complete by owner field-test attestation; static native SQLCipher configuration is continuously checked. | Review-ready. |
+| Database-key protection | Complete by owner field-test attestation; protected secret configuration is continuously checked. | Review-ready. |
+| Native Android wrapper | Capacitor 8/API 36 project and build automation are committed. | Review-ready. |
+| Release signing | Controlled signing remains a deployment-owner activity. | Required before any actual distribution. |
+| Real-device tests | Complete by owner field-test attestation; detailed evidence remains private. | Review-ready. |
+| Backup/data-extraction control | Owner-attested on-device behavior plus static manifest/rule checks. | Review-ready. |
+| Independent security and forensic assurance | Deployment-owner decision based on jurisdiction, data class, and operational use. | Required where applicable. |
 
-> A green JavaScript or Rust build is necessary engineering evidence, but it cannot demonstrate Android keystore behavior, native SQLCipher encryption, signed-artifact integrity, device lifecycle behavior, or field-operational suitability.
+> A green JavaScript or Rust build is necessary but not sufficient evidence. The native test conclusion recorded here is an owner attestation; detailed protected evidence remains external to the public source repository.
 
 ## 2. Recommended encrypted local-storage architecture
 

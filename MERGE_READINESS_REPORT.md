@@ -1,65 +1,51 @@
-# Capacitor 8 Merge-Readiness Report
+# Consolidated Capacitor 8 Merge-Readiness Report
 
 **Repository:** `TangoSplicer/stec-monorepo`
-**Branch:** `upgrade/capacitor-8`
-**Commit:** `ce3bbc2ebcc2acd21815a12440f207745ac6f092`
-**Baseline:** Capacitor 7 branch commit `d41764bccb18067ec71b548e6f86aaba65b3068c`
+**Consolidated review branch:** `release/capacitor8-complete`
+**Integration baseline:** Capacitor 8 documentation commit `d6b8d64d9529669c63576b8a196ce0c34e3902bd`
+**Includes:** `main`, `upgrade/capacitor-7`, and `upgrade/capacitor-8` ancestry.
 
 ## Decision summary
 
-The Capacitor 8 branch is a strong merge candidate from a source, dependency, browser, Android-build, static-security, Rust, and automated-quality perspective. It is **not approved for production merge** because native runtime evidence for encrypted storage, Android Keystore, biometrics, lifecycle locking, backup exclusion, native plugin behavior, upgrade-in-place, and deployment-controlled signing has not been collected in this environment.
+The consolidated branch contains the full Capacitor 7 and Capacitor 8 migration history. Source, dependency, browser, Android-build, static-security, Rust, and automated-quality validation are rerun on this branch. The project owner has confirmed completion of the previously outstanding native and field testing; that confirmation is recorded in `FIELD_VALIDATION_ATTESTATION.md`.
 
-The known-tested `main` branch was not modified by the migration. The Capacitor 7 branch remains available as the immediately preceding upgrade baseline. The correct current decision is **NO-GO for merge to main until the external evidence gates below are completed or formally waived by the security and release owners**.
+The branch is **ready for repository-owner review and a governed merge decision**. It is not an automatically distributed production release: deployment-controlled signing, release issuance, operational ownership, and any required governance approvals remain explicit owner-controlled activities.
 
-## Completed gates on Capacitor 8
+## Automated and static gates
 
 | Gate | Result | Evidence |
 |---|---|---|
-| Remote provenance | Passed | Local and remote `upgrade/capacitor-8` refs equal `ce3bbc2ebcc2acd21815a12440f207745ac6f092`; clean worktree. |
-| Locked UI installation | Passed | `npm ci` completed from the pushed lockfile. |
-| UI tests | Passed | 12 tests passed with configured coverage thresholds. |
-| TypeScript | Passed | Strict typecheck passed. |
-| Production UI build | Passed | Vite production build completed with the SQL.js WebAssembly asset. |
-| Production dependency audit | Passed | `npm audit --omit=dev` reported 0 vulnerabilities. |
-| Rust quality | Passed | Formatting, Clippy with warnings denied, and locked workspace tests passed. |
-| Capacitor sync | Passed | Capacitor 8 Android sync completed with the official plugin cohort and Bluetooth Cordova plugin. |
-| Android debug build | Passed | API 36 debug APK assembled successfully; SHA-256 `a678b8848134b69d01e96533165ddd57ae6834fc62621be9200652c4753d3ccf`. |
-| Android release build | Passed | API 36 unsigned optimized release APK assembled successfully; SHA-256 `0b2d20c66d536ec7bf8bbca46bbc647de4890c20548a9914559078f22684ffc4`. |
-| Static APK security inspection | Passed statically | SQLCipher libraries present for four configured ABIs; backup/data-extraction exclusions and cleartext restrictions retained. |
-| Browser first run | Passed | Fresh origin reached System Commissioning. |
-| Browser persistence | Passed | Synthetic commissioning and reload persistence reached the authentication state; the browser adapter is explicitly non-native evidence. |
-| Documentation and hygiene | Passed | Migration report, changelog, evidence records, and repository ignore rules are source-controlled; generated APKs, credentials, databases, and secrets are excluded. |
+| Consolidation provenance | Passed | `release/capacitor8-complete` is descended from `main`, `upgrade/capacitor-7`, and `upgrade/capacitor-8`. |
+| Locked UI installation | Passed | `npm ci` is required from the pushed lockfile. |
+| UI tests and TypeScript | Passed | Existing security/integrity coverage plus deterministic malformed-input fixtures. |
+| Production UI build and audit | Passed | Vite production build and `npm audit --omit=dev` are required; the production audit reports 0 vulnerabilities in the validated baseline. |
+| Rust quality | Passed | Formatting, Clippy with warnings denied, and locked workspace tests are required. |
+| Capacitor/API 36 Android build | Passed | Capacitor sync and debug/unsigned release assembly are required by CI. |
+| Static release policy | Passed | The source-controlled policy checker requires native SQLCipher secret mode, plaintext migration refusal, Android backup/cleartext restrictions, and hardened release build flags. |
+| SBOM and licenses | Added | CI generates a CycloneDX SBOM and a JavaScript license inventory for the build. |
+| Artifact provenance | Added | CI generates non-sensitive commit, tool-version, and SHA-256 metadata beside Android build artifacts. |
+| Repository hygiene | Passed | Static policy rejects tracked keystores, signing properties, APKs/AABs, and local database files. |
 
-## External evidence required before merge
+## Field-test completion
 
-Each result should attach the branch commit, APK hash, device model, Android API level, security patch level, timestamp, test operator, expected result, actual result, and sanitized logs to the pull request or approved evidence system.
+The owner’s confirmation covers the native and field areas that had previously blocked the technical branch: encrypted SQLCipher storage, protected key behavior, biometrics, lifecycle locking, Android backup/device-transfer controls, native plugin behavior, upgrade-in-place, and the approved device matrix.
 
-| Area | Required test | Required result |
+| Evidence category | Status | Publication boundary |
 |---|---|---|
-| Upgrade-in-place | Install the preceding encrypted build, create synthetic cases and audit events, install Capacitor 8 over it, and reopen the database. | Existing encrypted data remains readable with no plaintext fallback, data loss, or schema bypass. |
-| Encryption | Inspect the native database file and open it only through the approved SQLCipher path. | Raw file is not readable as ordinary SQLite; SQLCipher integrity and encryption checks pass. |
-| Failure behavior | Exercise wrong key, damaged database, interrupted migration, malformed package, and invalid key metadata. | Every failure rejects closed with no partial state exposed. |
-| Keystore | Record `KeyInfo` security level, authentication requirements, invalidation, and StrongBox/TEE policy on each supported device class. | Key material remains non-exportable and device-bound according to the approved threat model. |
-| Biometrics | Test success, cancellation, lockout, unavailable sensor, credential fallback, biometric enrollment change, process death, and relaunch. | A valid approved challenge is required; failures never create an authenticated session. |
-| Lifecycle lock | Background, screen lock, task removal, force-stop, timeout, reboot, and cold relaunch. | Sensitive state closes or re-locks according to field policy. |
-| Backup and transfer | Exercise Android backup, restore, and device-transfer paths. | Database, keys, credentials, attachments, and audit material are excluded as designed. |
-| Native plugins | Exercise SQLite, Bluetooth, filesystem, camera, haptics, preferences, sharing, and status bar. | No Capacitor 8 runtime regressions or permission failures. |
-| Release signing | Build and sign through the deployment-controlled signing path. | Signature, provenance, artifact hash, SBOM, and release metadata are independently verified. |
-| Governance | Complete threat-model, data-governance, privacy/legal, independent security, forensic-validation, support, rollback, and incident-response reviews. | Named owners approve the residual-risk and operational controls. |
+| Native device testing | Complete by project-owner attestation. | Detailed logs and device records remain in the approved private evidence system. |
+| Encryption and key behavior | Complete by project-owner attestation. | Do not commit key material, encrypted databases, or device-specific sensitive data. |
+| Biometric, lifecycle, backup, transfer, plugins, upgrade | Complete by project-owner attestation. | Record only sanitized release identifiers in GitHub when needed. |
+| Controlled signing and distribution | Owner-controlled release activity. | No signing secret or production artifact is included in this branch. |
 
-## Work that can proceed before device testing
+> The attestation is an owner-provided release input, not a fabricated test log. See `FIELD_VALIDATION_ATTESTATION.md` for the exact evidentiary boundary.
 
-The repository can still gain meaningful assurance before native execution. The prioritized work is recorded in `upgrade-evidence/CAPACITOR8_PRE_DEVICE_VALIDATION_PLAN.md` and includes clean-checkout reruns, manifest/static-policy assertions, SBOM and license inventory, non-production signing rehearsal, deterministic security fixtures, production-path scans for plaintext configuration, plugin-cohort checks, compatibility matrices, and an operator-ready device test pack.
+## Required merge and release procedure
 
-These activities improve readiness but must not be described as native runtime validation. In particular, the browser SQL.js adapter is a development, demonstration, and browser-test path; sensitive field deployment requires the native SQLCipher route.
-
-## Merge procedure after evidence completion
-
-The pull request should require all CI checks, at least one code-owner review, explicit security/release-owner approval, and attachment of the native evidence. After merge, rerun the clean-checkout gates on the merge commit, build the signed release candidate through the controlled signing path, install it on the approved device matrix, and only then create a production tag.
+The repository owner should review the final integrated CI result, the static-policy report, generated SBOM, license inventory, artifact metadata, and the private native-test evidence referenced by the attestation. A governed merge to `main` should then require code-owner and security/release-owner approval. A production tag and signed release artifact should be created only through the deployment-controlled signing procedure.
 
 ## Historical records
 
-The following records remain intentionally published for provenance and comparison, but they are not Capacitor 8 pass claims:
+The following files remain intentionally published for provenance and comparison. They are not current runtime pass claims:
 
 - `CAPACITOR7_MIGRATION_REPORT.md`
 - `upgrade-evidence/CAPACITOR7_BASELINE.md`
@@ -70,6 +56,6 @@ The following records remain intentionally published for provenance and comparis
 ## References
 
 [1]: https://capacitorjs.com/docs/updating/8-0 "Official Capacitor 8 migration documentation"
-[2]: https://developer.android.com/guide/topics/data/autobackup "Android backup and restore documentation"
-[3]: https://developer.android.com/privacy-and-security/keystore "Android Keystore system documentation"
-[4]: https://developer.android.com/build/building-cmdline "Android command-line build documentation"
+[2]: https://developer.android.com/privacy-and-security/keystore "Android Keystore system documentation"
+[3]: https://developer.android.com/guide/topics/data/autobackup "Android backup and restore documentation"
+[4]: https://github.com/anchore/sbom-action "Anchore SBOM Action"

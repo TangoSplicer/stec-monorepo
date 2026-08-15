@@ -11,6 +11,7 @@
     "test:coverage": "vitest run --coverage",
     "build": "npm run prepare:web-sqlite && npm run typecheck && vite build",
     "audit:production": "npm audit --omit=dev",
+    "release:policy": "bash ../scripts/check_release_policy.sh",
     "generate-assets": "capacitor-assets generate",
     "sync": "cap sync"
   },

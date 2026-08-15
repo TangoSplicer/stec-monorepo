@@ -1,8 +1,8 @@
 # STEC Monorepo: Production-Readiness Baseline
 
 **Assessment date:** 15 August 2026
-**Assessment scope:** `TangoSplicer/stec-monorepo`, `upgrade/capacitor-8` at `ce3bbc2ebcc2acd21815a12440f207745ac6f092`
-**Decision:** Technically validated; **not approved for field production** pending native Android evidence.
+**Assessment scope:** `TangoSplicer/stec-monorepo`, `release/capacitor8-complete`
+**Decision:** Owner-confirmed field testing is complete. The consolidated branch is ready for governed owner review; controlled signing and production distribution remain separate deployment-owner actions.
 
 ## Product identity and scope
 
@@ -15,12 +15,12 @@ The React interface provides locally stored cases, investigative nodes and relat
 | Area | Current state | Decision impact |
 |---|---|---|
 | Frontend | React 18, Vite 8, Capacitor 8.5.0; lazy-loaded authenticated routes and direct SQL.js browser test persistence. | Engineering baseline passed. |
-| Security logic | Versioned salted PBKDF2-SHA-256 credentials, biometric-gated sign-in, authenticated `CGX1` packages, bounded imports, audit-chain verification, case-scoped mutations, referential integrity, and controlled wiping. | Source and automated-test evidence passed; native behavior still requires device proof. |
-| Native Android | API 36 target/compile, min SDK 24, AGP 8.13.0, Gradle 8.14.3, Java 21, SQLCipher packaged for four configured ABIs. | Static/build evidence passed; runtime evidence pending. |
-| Automated quality | UI tests, strict TypeScript, production build, production audit, Rust format/Clippy/tests, Capacitor sync, and APK builds passed. | Technical validation passed. |
+| Security logic | Versioned salted PBKDF2-SHA-256 credentials, biometric-gated sign-in, authenticated `CGX1` packages, bounded imports, audit-chain verification, case-scoped mutations, referential integrity, and controlled wiping. | Source, automated-test, and owner-attested native evidence available. |
+| Native Android | API 36 target/compile, min SDK 24, AGP 8.13.0, Gradle 8.14.3, Java 21, SQLCipher packaged for four configured ABIs. | Build/static evidence and owner-attested runtime completion. |
+| Automated quality | UI tests, strict TypeScript, production build, production audit, Rust format/Clippy/tests, Capacitor sync, APK builds, and static policy checks. | Consolidated CI gate. |
 | Dependency audit | Production dependency audit reports 0 vulnerabilities. Three moderate development-only transitive findings remain tracked through Capacitor CLI/Xcode tooling. | No unsafe override applied; development supply-chain follow-up remains advisable. |
-| Native protection | Encrypted native-storage configuration, backup/data-extraction exclusions, cleartext blocking, and Keystore-backed plugin configuration are present in source. | Must be proven on approved devices. |
-| Field approval | No stable native runtime evidence for SQLCipher open, Keystore security level, biometrics, lifecycle lock, backup/device transfer, upgrade-in-place, plugins, or controlled signing. | Blocking. |
+| Release assurance | Static encrypted-path checks, backup/cleartext checks, sensitive-file hygiene checks, CycloneDX SBOM, JavaScript license inventory, and artifact metadata are generated in CI. | Review-ready supply-chain/provenance controls. |
+| Field validation | SQLCipher, Keystore, biometrics, lifecycle, backup/device transfer, plugins, and upgrade-in-place are complete by project-owner attestation. | Ready for governed owner review. |
 
 ## Current product direction
 
@@ -28,11 +28,11 @@ The appropriate objective is a trustworthy offline investigative workspace with 
 
 ## Release gates
 
-No release should be described as field-production-ready until all of the following are documented and approved: native SQLCipher encryption and migration, Android Keystore policy and invalidation behavior, biometric and lifecycle behavior, backup exclusion, native plugin operation, signed artifact provenance, SBOM and license review, threat model, data governance, independent security review, forensic validation where applicable, named operational ownership, rollback, and incident response.
+A controlled production release remains a deployment-owner decision. It should use the owner-confirmed native-test evidence, final integrated CI result, generated SBOM/license/provenance artifacts, deployment-controlled signed artifact, threat model, data governance, independent security review where applicable, forensic validation where applicable, named operational ownership, rollback, and incident response.
 
-## Immediate pre-device priorities
+## Consolidated assurance controls
 
-The highest-value work that can proceed without hardware is recorded in `upgrade-evidence/CAPACITOR8_PRE_DEVICE_VALIDATION_PLAN.md`. It includes clean-checkout reruns, static manifest assertions, SBOM and license inventory, non-production signing rehearsal, deterministic security fixtures, scans that prevent plaintext configuration from returning, plugin-cohort checks, compatibility matrices, and a prepared device operator pack.
+The applicable pre-device priorities are implemented in `RELEASE_ASSURANCE_CONTROLS.md`: clean-checkout gates, static manifest and encrypted-path assertions, SBOM and license inventory, artifact provenance, deterministic security fixtures, and scans that prevent sensitive release-policy regressions. `upgrade-evidence/CAPACITOR8_PRE_DEVICE_VALIDATION_PLAN.md` is retained as the historical planning record.
 
 ## References
 

@@ -18,11 +18,22 @@ describe('credential and package cryptography', () => {
     await expect(hashPassword('x'.repeat(MINIMUM_SECRET_LENGTH - 1))).rejects.toThrow('at least');
   });
 
+  it('fails closed for malformed or policy-violating password verifiers', async () => {
+    await expect(verifyPassword(secret, 'CGP1$pbkdf2-sha256$99999$c2FsdA==$ZGlnZXN0')).resolves.toBe(false);
+    await expect(verifyPassword(secret, 'CGP1$pbkdf2-sha256$600000$not-base64$also-not-base64')).resolves.toBe(false);
+    await expect(verifyPassword(secret, 'not-a-verifier')).resolves.toBe(false);
+  });
+
   it('authenticates encrypted packages and rejects tampering', async () => {
     const encrypted = await encryptPackage(JSON.stringify({ case: 'OP-001' }), secret);
     expect(encrypted.startsWith('CGX1.')).toBe(true);
     await expect(decryptPackage(encrypted, secret)).resolves.toBe(JSON.stringify({ case: 'OP-001' }));
     await expect(decryptPackage(`${encrypted.slice(0, -1)}A`, secret)).rejects.toThrow();
     await expect(decryptPackage(encrypted, 'incorrect password')).rejects.toThrow();
+  });
+
+  it('rejects malformed and incomplete encrypted package envelopes', async () => {
+    await expect(decryptPackage('CGX1.not-base64', secret)).rejects.toThrow('Invalid encoded package');
+    await expect(decryptPackage(`CGX1.${btoa('too-short')}`, secret)).rejects.toThrow('incomplete');
   });
 });

@@ -28,6 +28,10 @@ All notable engineering changes should be recorded here. This project follows [K
 - Preserved SQLCipher inclusion, Android backup/data-extraction exclusions, cleartext blocking, and encrypted native-storage configuration. Resolved the Capacitor 8 camera-library manifest conflict explicitly with `tools:replace` while retaining `requestLegacyExternalStorage=false`.
 - Validated UI tests, typecheck, production build, production dependency audit, Rust gates, Capacitor sync, API 36 debug/release APK builds, static APK security policy, browser commissioning, and browser reload persistence. The Capacitor 8 branch remains non-production pending native-device security and lifecycle evidence.
 - Updated merge readiness, production baseline, field-approval, and validation records to the Capacitor 8/API 36 state; added `DOCUMENTATION_INDEX.md` and `upgrade-evidence/CAPACITOR8_PRE_DEVICE_VALIDATION_PLAN.md` to distinguish current evidence from historical Capacitor 7 records.
+- Consolidated the Capacitor 7 and 8 ancestry on `release/capacitor8-complete`; recorded project-owner confirmation that the native and field test programme is complete without publishing sensitive device evidence.
+- Added a static release-policy gate that rejects regression of native SQLCipher secret mode, plaintext migration refusal, Android backup/data-extraction and cleartext policy, release hardening, or source-controlled sensitive artifacts.
+- Added CI generation of CycloneDX SBOM, JavaScript license inventory, and non-sensitive Android artifact provenance; CI now runs for `upgrade/**` and `release/**` branches as well as `main`.
+- Added deterministic negative-path tests for malformed credential verifiers, encrypted package envelopes, package JSON, oversized fields, duplicate graph identifiers, and self-referential relationships.
 
 - Added case-scoped mutation checks, collision-resistant identifiers, referential-integrity constraints, explicit validation, and administrator-only data wiping.
 - Added a versioned local schema initializer with indexes, foreign-key enforcement, audit-chain fields, and migration tracking.

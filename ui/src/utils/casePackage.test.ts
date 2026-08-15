@@ -49,4 +49,24 @@ describe('case packages', () => {
     };
     await expect(parseCasePackage(JSON.stringify(legacy))).resolves.toMatchObject({ verification: 'legacy-unverified' });
   });
+
+  it('rejects duplicate graph identifiers and self-referential relationships', async () => {
+    const duplicateNodes = {
+      ...content,
+      intelligence_nodes: [content.intelligence_nodes[0], { data: { ...content.intelligence_nodes[0].data } }],
+      relationships: [],
+    };
+    await expect(createCasePackage(duplicateNodes)).rejects.toThrow('duplicate node identifiers');
+
+    const selfReferentialRelationship = {
+      ...content,
+      relationships: [{ data: { id: 'edge-self', source: 'node-1', target: 'node-1', label: 'invalid' } }],
+    };
+    await expect(createCasePackage(selfReferentialRelationship)).rejects.toThrow('invalid relationship');
+  });
+
+  it('rejects malformed JSON and oversized text before import', async () => {
+    await expect(parseCasePackage('{not-json')).rejects.toThrow('not valid JSON');
+    await expect(createCasePackage({ ...content, case: { ...content.case, title: 'x'.repeat(10_001) } })).rejects.toThrow('case title');
+  });
 });

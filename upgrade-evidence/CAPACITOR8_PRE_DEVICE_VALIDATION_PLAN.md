@@ -1,8 +1,8 @@
 # Capacitor 8 Pre-Device Validation Plan
 
 **Repository:** `TangoSplicer/stec-monorepo`
-**Branch:** `upgrade/capacitor-8`
-**Current status:** Technically validated in the sandbox; native field-production approval remains pending.
+**Original branch:** `upgrade/capacitor-8`
+**Historical status:** This planning record is superseded for the consolidated review branch by `RELEASE_ASSURANCE_CONTROLS.md` and `FIELD_VALIDATION_ATTESTATION.md`. Its applicable assurance controls are implemented; the project owner has confirmed native field testing is complete.
 
 ## Purpose
 
