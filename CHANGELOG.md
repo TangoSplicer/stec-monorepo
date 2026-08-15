@@ -27,6 +27,7 @@ All notable engineering changes should be recorded here. This project follows [K
 - Advanced the isolated `upgrade/capacitor-8` branch to Capacitor 8.5.0 with SQLite 8.1.1 and biometric-auth 10.0.0; migrated Android to min SDK 24, compile/target SDK 36, AGP 8.13.0, and Gradle 8.14.3.
 - Preserved SQLCipher inclusion, Android backup/data-extraction exclusions, cleartext blocking, and encrypted native-storage configuration. Resolved the Capacitor 8 camera-library manifest conflict explicitly with `tools:replace` while retaining `requestLegacyExternalStorage=false`.
 - Validated UI tests, typecheck, production build, production dependency audit, Rust gates, Capacitor sync, API 36 debug/release APK builds, static APK security policy, browser commissioning, and browser reload persistence. The Capacitor 8 branch remains non-production pending native-device security and lifecycle evidence.
+- Updated merge readiness, production baseline, field-approval, and validation records to the Capacitor 8/API 36 state; added `DOCUMENTATION_INDEX.md` and `upgrade-evidence/CAPACITOR8_PRE_DEVICE_VALIDATION_PLAN.md` to distinguish current evidence from historical Capacitor 7 records.
 
 - Added case-scoped mutation checks, collision-resistant identifiers, referential-integrity constraints, explicit validation, and administrator-only data wiping.
 - Added a versioned local schema initializer with indexes, foreign-key enforcement, audit-chain fields, and migration tracking.

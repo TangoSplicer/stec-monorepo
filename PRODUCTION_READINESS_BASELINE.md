@@ -1,54 +1,41 @@
 # STEC Monorepo: Production-Readiness Baseline
 
-**Assessment date:** 13 August 2026
-**Assessment scope:** `TangoSplicer/stec-monorepo`, branch `main`
+**Assessment date:** 15 August 2026
+**Assessment scope:** `TangoSplicer/stec-monorepo`, `upgrade/capacitor-8` at `ce3bbc2ebcc2acd21815a12440f207745ac6f092`
+**Decision:** Technically validated; **not approved for field production** pending native Android evidence.
 
 ## Product identity and scope
 
-The repository is an early-stage, offline-first investigative case-management and link-analysis platform branded primarily as **CrimeGraph**, supported by forensic and networking components named **Aletheia**, **WhisperNet**, and **STEC Daemon**. It is not a Git workflow product: an exhaustive repository-text search found no `GitFleet`, `GitFlow TUI`, worktree, pull-request, or branch-management implementation.
+The repository is a sensitive, offline-first investigative case-management and link-analysis platform with forensic and networking components named **Aletheia**, **WhisperNet**, and **STEC Daemon**. It is separate from the Go-based `gitflow-TUI` and `gitfleet` tools; those tools do not share this repository’s credentials, evidence store, or sensitive case boundary.
 
-The application’s React interface currently provides locally stored cases, investigative nodes and relationships, notes, basic exports, a Cytoscape graph workspace, and a client-side user model. Its current delivery configuration remains prototype-level: the root Makefile describes a Svelte UI even though the source has moved to React; 540 Rust `target/` build artefacts are tracked; the main CI workflow builds one Android target but runs neither Rust unit tests nor interface checks; and automated UI tests, linting, dependency auditing, security scanning, release packaging, and a documented support/recovery process are absent.
+The React interface provides locally stored cases, investigative nodes and relationships, notes, authenticated local workflows, validated encrypted exports/imports, audit verification, a Cytoscape graph workspace, and a browser test adapter. The supported sensitive-data deployment target is the native Android SQLCipher path, not the browser adapter.
 
-## Verifiable baseline
+## Verifiable current baseline
 
-| Area | Current state | Production impact |
+| Area | Current state | Decision impact |
 |---|---|---|
-| Interface build | `npm ci` and `npm run build` succeeded on 13 August 2026. The production bundle has a 694 kB primary JavaScript chunk before compression. | A functional baseline exists, but first-load performance and quality controls require improvement. |
-| UI test coverage | No unit, integration, end-to-end, accessibility, or visual test runner is configured. | Regressions in evidence handling, graph behavior, and authentication cannot be reliably detected. |
-| Core validation | Rust/Cargo tooling is not present in the current build environment; the project’s CI currently compiles only one Android target. | Rust code correctness and host-platform compatibility are unverified in this assessment environment. |
-| Data protection | The database is created with `no-encryption`; user secrets use an unsalted fast SHA-256 hash in the active auth store; a default test analyst is inserted at setup; biometric login does not invoke a biometric challenge. | This is a release-blocking security defect for forensic or sensitive investigative data. |
-| Auditability | Mutating operations emit simple local audit rows, but there is no append-only protection, exportable evidence manifest, integrity chain, or durable transaction boundary. | The current audit log cannot substantiate an evidential chain of custody. |
-| Import/export | Export uses AES-GCM but weakens derivation consistency by using a lower PBKDF2 work factor than the dedicated credential helper; import accepts unversioned, unvalidated arbitrary JSON after decryption. | Package integrity, forward compatibility, and safe import constraints require hardening. |
-| Repository hygiene | Generated `target/` files are tracked; root documentation, licensing clarity, contribution guidance, security policy, release notes, and SBOM production are incomplete or absent. | The repository is costly to review, difficult to reproduce, and cannot make a credible production release claim. |
+| Frontend | React 18, Vite 8, Capacitor 8.5.0; lazy-loaded authenticated routes and direct SQL.js browser test persistence. | Engineering baseline passed. |
+| Security logic | Versioned salted PBKDF2-SHA-256 credentials, biometric-gated sign-in, authenticated `CGX1` packages, bounded imports, audit-chain verification, case-scoped mutations, referential integrity, and controlled wiping. | Source and automated-test evidence passed; native behavior still requires device proof. |
+| Native Android | API 36 target/compile, min SDK 24, AGP 8.13.0, Gradle 8.14.3, Java 21, SQLCipher packaged for four configured ABIs. | Static/build evidence passed; runtime evidence pending. |
+| Automated quality | UI tests, strict TypeScript, production build, production audit, Rust format/Clippy/tests, Capacitor sync, and APK builds passed. | Technical validation passed. |
+| Dependency audit | Production dependency audit reports 0 vulnerabilities. Three moderate development-only transitive findings remain tracked through Capacitor CLI/Xcode tooling. | No unsafe override applied; development supply-chain follow-up remains advisable. |
+| Native protection | Encrypted native-storage configuration, backup/data-extraction exclusions, cleartext blocking, and Keystore-backed plugin configuration are present in source. | Must be proven on approved devices. |
+| Field approval | No stable native runtime evidence for SQLCipher open, Keystore security level, biometrics, lifecycle lock, backup/device transfer, upgrade-in-place, plugins, or controlled signing. | Blocking. |
 
-## Market benchmark and product direction
+## Current product direction
 
-Contemporary investigative platforms emphasize secure, role-controlled case data, central evidence and chronology, link analysis, collaboration, reporting, and resilient mobile/offline operation. Kaseware describes integrated link analysis with access control, interactive entities, case context, and exportable charts.[1] SoundThinking describes structured case folders, chronology, evidence, checklist workflows, link analysis, audit trails, reporting, alerts, and role-based configuration.[2] NEC describes secure evidence processing, continuous chain of custody, role-based access, offline mobile work, and integration.[3] GraphAware identifies structured multi-hop traversal, temporal relationships, entity resolution, and community detection as core analytical capabilities of graph-powered investigation tooling.[4]
-
-The appropriate product goal is therefore not an unsupported claim to outperform every product in the market. It is a **trustworthy offline investigative workspace** with a defensible security baseline, a versioned portable case format, transparent locally verifiable audit records, responsive link analysis, and a repeatable quality/release process. The implementation phases will concentrate first on the release-blocking integrity and security failures, then on high-value investigation workflows and assurance automation.
+The appropriate objective is a trustworthy offline investigative workspace with a defensible security baseline, versioned portable case format, locally verifiable audit records, responsive link analysis, and repeatable release assurance. Claims of being “better than anything on the market” are not treated as evidence; the project should outperform through verifiable trust, usability, transparent limitations, and disciplined operational controls.
 
 ## Release gates
 
-No release should be described as production-ready until all of the following are met.
+No release should be described as field-production-ready until all of the following are documented and approved: native SQLCipher encryption and migration, Android Keystore policy and invalidation behavior, biometric and lifecycle behavior, backup exclusion, native plugin operation, signed artifact provenance, SBOM and license review, threat model, data governance, independent security review, forensic validation where applicable, named operational ownership, rollback, and incident response.
 
-| Gate | Required evidence |
-|---|---|
-| Security | No seeded credentials; slow salted password verification; actual biometric gate on supported devices; encrypted at-rest database design; validated import envelope; documented threat model and responsible-disclosure policy. |
-| Evidence integrity | Canonical case manifest, file/schema versioning, authenticated export envelope, stable IDs, audit-event hashing, verification command or screen, retention/destruction confirmation, and an explicit limitation statement. |
-| Reliability | Transactional mutations, referential integrity, error propagation instead of silent catches, collision-resistant identifiers, migration runner, backup/restore tests, and recovery documentation. |
-| Product quality | Accessible UI states; responsive graph interactions; case search/filter; timeline and evidence workflow; clear destructive-action confirmation; import/export feedback; no large entry bundle caused by avoidable eager imports. |
-| Engineering quality | Reproducible local commands, clean ignore rules, dependency lockfiles, formatting/linting, unit/integration tests, end-to-end smoke test, dependency/security scan, SBOM, CI gates, versioned releases, and change log. |
+## Immediate pre-device priorities
 
-## Implementation priority
-
-1. **Release blockers:** establish test/lint scaffolding, secure credentials and remove seeded access, harden local database initialization and migrations, introduce auditable validated case package import/export, correct repository hygiene, and expand CI.
-2. **Evidence workflow:** add case chronology, evidence objects with stable metadata and integrity hashes, richer audit events, responsive search/filtering, and graph interaction improvements.
-3. **Operational assurance:** apply performance code splitting, add automated accessibility and workflow smoke tests, release documentation, SBOM, and reproducible build/release commands.
-4. **Future capability:** add graph analytics, authenticated collaboration/sync, native encrypted storage, device policy enforcement, and external integrations only after their threat models, legal basis, and operational ownership have been specified.
+The highest-value work that can proceed without hardware is recorded in `upgrade-evidence/CAPACITOR8_PRE_DEVICE_VALIDATION_PLAN.md`. It includes clean-checkout reruns, static manifest assertions, SBOM and license inventory, non-production signing rehearsal, deterministic security fixtures, scans that prevent plaintext configuration from returning, plugin-cohort checks, compatibility matrices, and a prepared device operator pack.
 
 ## References
 
-[1]: https://www.kaseware.com/link-analysis "Kaseware: Link Analysis Software"
-[2]: https://www.soundthinking.com/law-enforcement/investigation-management-casebuilder/ "SoundThinking: CaseBuilder"
-[3]: https://www.necsws.com/solutions/operational-police-software/forensic-case-management/ "NEC: Forensic Case Management Software"
-[4]: https://graphaware.com/link-analysis-software/ "GraphAware: The Ultimate Guide to Link Analysis Software"
+[1]: https://capacitorjs.com/docs/updating/8-0 "Official Capacitor 8 migration documentation"
+[2]: https://developer.android.com/privacy-and-security/keystore "Android Keystore system documentation"
+[3]: https://developer.android.com/guide/topics/data/autobackup "Android backup and restore documentation"

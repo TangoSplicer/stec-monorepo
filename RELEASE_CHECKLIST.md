@@ -6,22 +6,22 @@ A release manager must retain the completed evidence for each applicable gate. A
 
 | Gate | Evidence required | Status |
 |---|---|---|
-| Locked dependency installation | Clean `npm ci` and `cargo ... --locked` run from the tagged commit. | [ ] |
-| UI tests | `npm run test:coverage` completed; material security and package-validation logic has meaningful coverage. | [ ] |
-| UI production build | `npm run build` completed; bundle size and browser/mobile smoke results reviewed. | [ ] |
-| UI dependency audit | `npm run audit:production` completed with no known production dependency vulnerability. | [ ] |
-| Rust quality | Rust formatting check, Clippy with warnings denied, and workspace tests completed. | [ ] |
-| Android build | Android ARM64 cross-build completed from the tag in a pinned NDK environment. | [ ] |
+| Locked dependency installation | Clean `npm ci` and `cargo ... --locked` run from the exact Capacitor 8 commit. | [x] |
+| UI tests | `npm run test:coverage` completed; material security and package-validation logic has meaningful coverage. | [x] |
+| UI production build | `npm run build` completed; browser persistence smoke evidence reviewed. | [x] |
+| UI dependency audit | `npm run audit:production` completed with no known production dependency vulnerability. | [x] |
+| Rust quality | Rust formatting check, Clippy with warnings denied, and workspace tests completed. | [x] |
+| Android build | API 36 debug and unsigned release builds completed; pinned NDK/ARM64 release evidence remains to be attached. | [~] |
 | Native smoke test | The generated Android build was installed and manually tested on supported device versions. | [ ] |
-| Repository hygiene | No build artefacts, credentials, local databases, or generated binaries are committed. | [ ] |
-| Artefact provenance | Source commit, version, hashes, build environment, SBOM, and signed release artefacts are recorded. | [ ] |
+| Repository hygiene | No build artefacts, credentials, local databases, or generated binaries are committed. | [x] |
+| Artefact provenance | Source commit, APK hashes, build environment, SBOM, and signed release artefacts are recorded. | [~] |
 
 ## Product and data-integrity evidence
 
 | Gate | Evidence required | Status |
 |---|---|---|
-| Authentication | Commissioning, administrator, analyst, invalid-password, background-lock, and biometric-fallback flows tested on device. | [ ] |
-| Local data | Encryption at rest is enabled and tested with protected key storage. The current `no-encryption` development configuration must not be used for sensitive deployment. | [ ] |
+| Authentication | Commissioning, administrator, invalid-password, background-lock, and biometric flows tested on an approved device. | [ ] |
+| Local data | Native SQLCipher encryption and protected key storage are configured; on-device encryption and Keystore behavior remain untested. | [ ] |
 | Case packages | Current encrypted export, verified import, incorrect password, altered payload, oversized input, and legacy-package warning paths tested. | [ ] |
 | Audit ledger | Creation, mutation, deletion, import, export, and wipe events are present and their integrity chain is independently verified. | [ ] |
 | Destructive actions | Archive, deletion, and wipe confirmations tested; backup/restore evidence retained. | [ ] |
