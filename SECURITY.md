@@ -30,6 +30,8 @@ The repository enables Dependabot vulnerability alerts and automated security up
 
 GitHub capability availability varies by repository plan and feature support. Non-provider secret-pattern scanning and secret-validity checks are not currently enabled for this repository; contributors must therefore continue to treat the source-control publication boundary and pre-commit review as primary safeguards.
 
+The repository now has an active `STEC main governed protection` ruleset targeting the default branch. It requires pull requests, at least one approving review, code-owner approval for owned sensitive paths, resolved review threads, dismissal of stale approvals after new pushes, the named UI/Rust/static-policy/Android/CodeQL checks, and protection against branch deletion and force-push history rewrites. The ruleset does not itself authorize production signing, release tagging, or distribution.
+
 ## Release security requirements
 
 No build should be presented as secure for sensitive operational use solely because its source compiles or its unit tests pass. The deployment owner remains responsible for device hardening, encrypted-at-rest storage, key management, independent security testing, data governance, mobile-store policy, incident response, and applicable legal or regulatory controls.
