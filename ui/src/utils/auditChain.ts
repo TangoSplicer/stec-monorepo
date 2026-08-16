@@ -44,9 +44,10 @@ export async function hashAuditEvent(entry: Omit<AuditChainEntry, 'entry_hash'>)
 /** Verifies a ledger in chronological order and identifies the first invalid record. */
 export async function verifyAuditChain(entries: AuditChainEntry[]): Promise<AuditVerificationResult> {
   let previousHash: string | null = null;
-  for (const entry of entries) {
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index];
     if (entry.prev_hash !== previousHash) {
-      return { valid: false, checked: entries.indexOf(entry), failed_entry_id: entry.id };
+      return { valid: false, checked: index, failed_entry_id: entry.id };
     }
     const calculatedHash = await hashAuditEvent({
       id: entry.id,
@@ -58,7 +59,7 @@ export async function verifyAuditChain(entries: AuditChainEntry[]): Promise<Audi
       prev_hash: entry.prev_hash,
     });
     if (entry.entry_hash !== calculatedHash) {
-      return { valid: false, checked: entries.indexOf(entry), failed_entry_id: entry.id };
+      return { valid: false, checked: index, failed_entry_id: entry.id };
     }
     previousHash = entry.entry_hash;
   }

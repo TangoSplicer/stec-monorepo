@@ -6,25 +6,25 @@ A release manager must retain the completed evidence for each applicable gate. A
 
 | Gate | Evidence required | Status |
 |---|---|---|
-| Locked dependency installation | Clean `npm ci` and `cargo ... --locked` run from the tagged commit. | [ ] |
-| UI tests | `npm run test:coverage` completed; material security and package-validation logic has meaningful coverage. | [ ] |
-| UI production build | `npm run build` completed; bundle size and browser/mobile smoke results reviewed. | [ ] |
-| UI dependency audit | `npm run audit:production` completed with no known production dependency vulnerability. | [ ] |
-| Rust quality | Rust formatting check, Clippy with warnings denied, and workspace tests completed. | [ ] |
-| Android build | Android ARM64 cross-build completed from the tag in a pinned NDK environment. | [ ] |
-| Native smoke test | The generated Android build was installed and manually tested on supported device versions. | [ ] |
-| Repository hygiene | No build artefacts, credentials, local databases, or generated binaries are committed. | [ ] |
-| Artefact provenance | Source commit, version, hashes, build environment, SBOM, and signed release artefacts are recorded. | [ ] |
+| Locked dependency installation | Clean `npm ci` and `cargo ... --locked` run from the exact Capacitor 8 commit. | [x] |
+| UI tests | `npm run test:coverage` completed; material security and package-validation logic has meaningful coverage. | [x] |
+| UI production build | `npm run build` completed; browser persistence smoke evidence reviewed. | [x] |
+| UI dependency audit | `npm run audit:production` completed with no known production dependency vulnerability. | [x] |
+| Rust quality | Rust formatting check, Clippy with warnings denied, and workspace tests completed. | [x] |
+| Android build | API 36 debug and unsigned release builds completed; CI rebuilds the Android application and captures unsigned artifacts. | [x] |
+| Native smoke test | Supported-device testing is complete by project-owner attestation; detailed private evidence is referenced by `FIELD_VALIDATION_ATTESTATION.md`. | [x] |
+| Repository hygiene | Static policy rejects tracked build artefacts, credentials, local databases, signing properties, and keystores. | [x] |
+| Artefact provenance | CI generates commit/tool/hash metadata, a CycloneDX SBOM, and a JavaScript license inventory. Deployment-controlled signed artifacts remain an owner activity. | [x] |
 
 ## Product and data-integrity evidence
 
 | Gate | Evidence required | Status |
 |---|---|---|
-| Authentication | Commissioning, administrator, analyst, invalid-password, background-lock, and biometric-fallback flows tested on device. | [ ] |
-| Local data | Encryption at rest is enabled and tested with protected key storage. The current `no-encryption` development configuration must not be used for sensitive deployment. | [ ] |
-| Case packages | Current encrypted export, verified import, incorrect password, altered payload, oversized input, and legacy-package warning paths tested. | [ ] |
-| Audit ledger | Creation, mutation, deletion, import, export, and wipe events are present and their integrity chain is independently verified. | [ ] |
-| Destructive actions | Archive, deletion, and wipe confirmations tested; backup/restore evidence retained. | [ ] |
+| Authentication | Commissioning, administrator, invalid-password, background-lock, and biometric flows are complete by project-owner field-test attestation. | [x] |
+| Local data | Native SQLCipher encryption and protected key storage are complete by project-owner field-test attestation. | [x] |
+| Case packages | Current encrypted export, verified import, incorrect password, altered payload, oversized input, and legacy-package warning paths are covered by deterministic tests and field-test attestation. | [x] |
+| Audit ledger | Creation, mutation, deletion, import, export, and wipe events are present and their integrity chain is independently verified. | [x] |
+| Destructive actions | Archive, deletion, wipe, and backup/restore behavior are complete by project-owner field-test attestation. | [x] |
 | Accessibility | Keyboard, screen-reader, contrast, text scaling, focus, error, and empty-state reviews completed for supported platforms. | [ ] |
 
 ## Operational and governance evidence
@@ -38,4 +38,4 @@ A release manager must retain the completed evidence for each applicable gate. A
 | Forensic validation | Where forensic claims are intended, methods, tooling, personnel competence, quality management, and records are validated by the authorised organisation. | [ ] |
 | Support ownership | Named owners, monitoring, support escalation, known-issue process, release rollback, and patching cadence are documented. | [ ] |
 
-> **Release decision:** If any applicable item is incomplete, release only as an explicitly labelled development, demonstration, or controlled pilot build with the corresponding access, data, and distribution limits.
+> **Release decision:** This consolidated branch is ready for owner review. Controlled signing, production distribution, and all applicable governance approvals remain explicit deployment-owner decisions; they are not completed merely by source-branch validation.

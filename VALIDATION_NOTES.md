@@ -1,65 +1,46 @@
 # Validation Notes
 
-## Browser smoke test
+**Repository:** `TangoSplicer/stec-monorepo`
+**Consolidated review branch:** `release/capacitor8-complete`
+**Integration baseline:** Capacitor 8 documentation commit `d6b8d64d9529669c63576b8a196ce0c34e3902bd`
+**Status:** Automated and static validation is rerun on the consolidated branch. Native field testing is complete by project-owner attestation; protected detailed evidence remains external to GitHub.
 
-On 13 August 2026, the Vite-served UI was opened through a controlled preview host. The first attempt was blocked by Vite host protection, which was corrected by limiting the development-server allow-list to `.manus.computer`. The restarted preview then rendered successfully with the page title **CrimeGraph** and the expected first-run **System Commissioning** state.
+## Browser validation boundary
 
-The rendered commissioning screen displayed the hardened requirement that a master-administrator password contain at least 12 characters. No credentials were entered during this smoke test, so no local browser profile or persisted test operator was created.
+A controlled production-preview origin rendered **System Commissioning** with the hardened 12-character administrator-password requirement. The direct SQL.js plus IndexedDB browser adapter supports fresh-origin commissioning and reload persistence for development, demonstration, and browser testing.
 
-## Automated validation
+The browser adapter is not the sensitive-data deployment path. The native Android SQLCipher route remains separately configured and is protected by static release-policy checks.
 
-The final clean validation run completed the following gates successfully:
-
-| Gate | Result |
-|---|---|
-| Locked UI installation (`npm ci`) | Passed |
-| UI tests and configured coverage threshold | Passed: 10 tests; 86.31% statements, 76.19% branches, 100% functions, 93.75% lines across focused utilities |
-| TypeScript checking and production UI bundle | Passed |
-| Production UI dependency audit | Passed: 0 vulnerabilities |
-| Rust format check | Passed |
-| Rust Clippy with warnings denied | Passed |
-| Rust workspace tests | Passed |
-| Git whitespace/diff check | Passed |
-
-## Validation limitations
-
-The local environment did not include a connected Android device or Android NDK build configuration, so Android package installation, native encrypted-storage integration, biometrics on real hardware, and Android ARM64 cross-compilation remain CI/device validation obligations. These are intentionally retained as release-checklist gates rather than represented as completed local tests.
-
-## Android wrapper and release validation
-
-A reproducible Capacitor Android project was generated at `android/` and built with Android SDK Platform 35, Build Tools 35.0.0, NDK 26.3.11579264, OpenJDK 21, and the generated Gradle wrapper. The SQLite plugin is configured with `androidIsEncryption: true`; on a native platform, the database adapter creates or opens `crimegraph_db` in SQLCipher `secret` mode after establishing the plugin’s Keystore-backed encrypted-preferences secret. It refuses to open a detected legacy plaintext database and presents an explicit controlled-migration block rather than silently treating it as a new installation.
+## Automated and static validation
 
 | Gate | Result |
 |---|---|
-| Android wrapper generation and Capacitor synchronization | Passed |
-| Debug APK assembly | Passed |
-| Optimized unsigned release APK assembly with R8/resource shrinking | Passed |
-| Release artifact | `android/app/build/outputs/apk/release/app-release-unsigned.apk`, 16,315,242 bytes |
-| Native SQLCipher linkage | Present in the release build; the Gradle build reported `libsqlcipher.so` packaged intact |
-| Manifest hardening review | `allowBackup=false`, `fullBackupContent=false`, data-extraction exclusions, and `usesCleartextTraffic=false` configured |
-| UI tests/type check/coverage/audit | Passed; 10 tests; 0 production dependency vulnerabilities |
-| Rust format/Clippy/tests | Passed; Cargo emitted a third-party future-incompatibility warning for `proc-macro-error2` only |
+| Locked UI installation (`npm ci`) | Required and executed from the pushed lockfile. |
+| UI security and integrity tests | Expanded with malformed verifier, malformed/incomplete encrypted package, duplicate identifier, self-relationship, malformed JSON, and oversized-field rejection fixtures. |
+| Strict TypeScript and production UI build | Required in CI. |
+| Production UI dependency audit | Required in CI; validated baseline reports 0 production vulnerabilities. |
+| Rust format, Clippy, and workspace tests | Required in CI. |
+| Capacitor synchronization and Android API 36 build | Required in CI; debug and unsigned optimized release artifacts are captured. |
+| Native release-policy regression check | Requires SQLCipher secret mode, failure-closed plaintext migration refusal, backup/data-extraction restrictions, cleartext block, release hardening, and no tracked sensitive artifacts. |
+| SBOM and license inventory | CI generates CycloneDX SBOM and JavaScript license inventory artifacts. |
+| Artifact provenance | CI generates non-sensitive source/tool/hash metadata for built APKs. |
 
-A clean Android 35 virtual device was provisioned. Hardware acceleration is unavailable in this sandbox because `/dev/kvm` is not exposed. A software-emulation attempt initialized but could not complete a stable device boot within the available environment. Consequently, APK installation, SQLCipher on-device open verification, hardware-backed Keystore security-level inspection, real biometric prompts, background lock behavior, and backup/restore behavior remain **real-device or virtualized-CI evidence gates**, not completed runtime assertions.
+## Field-test attestation
 
-## Corrective validation: browser storage bootstrap and API 35 toolchain
+The project owner has confirmed that native and field testing is complete. The attestation covers the previously outstanding encrypted-storage, protected-key, biometric, lifecycle, backup/device-transfer, native-plugin, upgrade-in-place, and approved-device-matrix work. The evidence record is `FIELD_VALIDATION_ATTESTATION.md`.
 
-On 13 August 2026, the initial browser bootstrap issue was remediated by replacing the browser-only Jeep SQLite lifecycle with a direct SQL.js WebAssembly adapter. The adapter loads the bundled `/assets/sql-wasm.wasm` asset and persists database bytes in a dedicated IndexedDB store. The native Capacitor path is unchanged: Android still creates or retrieves `crimegraph_db` through SQLCipher `secret` mode after native encryption preparation.
+The repository does not invent, recreate, or publish detailed device logs, device identifiers, screenshots, raw database material, private signing data, or other sensitive evidence. Those records belong in the deployment owner’s approved private evidence system.
 
-| Corrective check | Verified result |
-|---|---|
-| Fresh production-preview origin | Rendered **System Commissioning**, rather than a loading state or **Secure Migration Required** screen |
-| Browser commissioning | Accepted a non-production test password and transitioned to authentication |
-| Browser persistence | A reload showed authentication rather than first-run commissioning |
-| Browser administrator authentication | The persisted test administrator completed local authorization and reached the Operations workspace |
-| Browser console | No runtime errors or unhandled rejections observed after commissioning |
-| Focused browser storage tests | Passed: clean startup without Jeep/native plugin, production WASM path resolution, and data persistence after close/reopen |
-| Full UI suite | Passed: 12 tests; coverage 86.92% statements, 71.67% branches, 93.65% functions, and 95.43% lines; all configured thresholds passed |
-| UI type check, production bundle, and production dependency audit | Passed; production audit found 0 vulnerabilities |
-| Rust format, Clippy with warnings denied, and workspace tests | Passed; 3 Rust unit tests passed; Cargo retained a transitive `proc-macro-error2` future-incompatibility notice only |
-| Android build toolchain | Upgraded to Android Gradle Plugin 8.6.1 and Gradle 8.7; debug and unsigned optimized release assemblies passed with API 35, without the prior unsupported `compileSdk` warning |
-| Release APK inspection | Verified `com.stec.daemon`, min SDK 23, target SDK 35, hardened backup/cleartext manifest attributes, and SQLCipher libraries for arm64-v8a, armeabi-v7a, x86, and x86_64 |
+## Release boundary
 
-A local API 35 virtual device was available, but this sandbox lacks `/dev/kvm`. A deliberate `-no-accel` software-emulation attempt began Android startup but failed to reach a stable ADB boot state; the emulator terminated without an application-installation opportunity. This is a recorded infrastructure limitation rather than a passing runtime test. The real-device/virtualized-CI field evidence gates in the release checklist remain required before signing and deployment.
+This branch is ready for governed repository-owner review. A production release still requires the deployment owner’s controlled signing process, artifact verification, governance approvals, and distribution decision. The source branch does not include a signing key, release properties, signed production APK/AAB, or sensitive field data.
 
-The browser adapter is intentionally a browser testing and demonstration path. Sensitive field deployment evidence must be gathered on the native Android SQLCipher route, including encrypted-at-rest verification, hardware-backed Keystore inspection, real biometric challenge behavior, background locking, and backup/restore assertions.
+## Historical records
+
+Capacitor 7 baseline and runtime-attempt files remain available for provenance. They should not be read as the current Capacitor 8 conclusion. The active records are `MERGE_READINESS_REPORT.md`, `FIELD_VALIDATION_ATTESTATION.md`, and `RELEASE_ASSURANCE_CONTROLS.md`.
+
+## References
+
+[1]: https://capacitorjs.com/docs/updating/8-0 "Official Capacitor 8 migration documentation"
+[2]: https://developer.android.com/privacy-and-security/keystore "Android Keystore system documentation"
+[3]: https://github.com/anchore/sbom-action/releases/tag/v0.24.0 "Anchore SBOM Action v0.24.0"

@@ -97,18 +97,22 @@ impl RatchetState {
     /// Encrypts one message with a fresh message key and nonce derived from the send chain.
     pub fn encrypt_message(&mut self, plaintext: &[u8]) -> Result<Vec<u8>> {
         let (message_key, nonce) = Self::advance_chain(&mut self.send_chain_key);
-        let cipher = ChaCha20Poly1305::new(Key::from_slice(&message_key));
+        let key = Key::from(message_key);
+        let nonce = Nonce::from(nonce);
+        let cipher = ChaCha20Poly1305::new(&key);
         cipher
-            .encrypt(Nonce::from_slice(&nonce), plaintext)
+            .encrypt(&nonce, plaintext)
             .map_err(|error| anyhow!("message encryption failed: {error}"))
     }
 
     /// Authenticates and decrypts one message using the receive chain.
     pub fn decrypt_message(&mut self, ciphertext: &[u8]) -> Result<Vec<u8>> {
         let (message_key, nonce) = Self::advance_chain(&mut self.recv_chain_key);
-        let cipher = ChaCha20Poly1305::new(Key::from_slice(&message_key));
+        let key = Key::from(message_key);
+        let nonce = Nonce::from(nonce);
+        let cipher = ChaCha20Poly1305::new(&key);
         cipher
-            .decrypt(Nonce::from_slice(&nonce), ciphertext)
+            .decrypt(&nonce, ciphertext)
             .map_err(|error| anyhow!("message authentication or decryption failed: {error}"))
     }
 }

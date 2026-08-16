@@ -88,4 +88,15 @@ describe('browser evidence database adapter', () => {
     });
     await restoredConnection.close();
   });
+
+  it('fails closed after close while keeping close idempotent', async () => {
+    const { BrowserDatabaseConnection } = await import('./browserDb');
+    const database = new BrowserDatabaseConnection();
+    await database.open();
+    await database.close();
+
+    await expect(database.query('SELECT 1')).rejects.toThrow('not open');
+    await expect(database.close()).resolves.toBeUndefined();
+    await expect(database.isDBOpen()).resolves.toEqual({ result: false });
+  });
 });

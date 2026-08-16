@@ -3,19 +3,19 @@ import java.util.Properties
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.stec.daemon"
-    compileSdk rootProject.ext.compileSdkVersion
+    namespace = "com.stec.daemon"
+    compileSdk = rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.stec.daemon"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.stec.daemon"
+        minSdk = rootProject.ext.minSdkVersion
+        targetSdk = rootProject.ext.targetSdkVersion
+        versionCode = 1
+        versionName = "1.0.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
-            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
 
@@ -38,14 +38,14 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix ".debug"
-            versionNameSuffix "-debug"
-            debuggable true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            debuggable = true
         }
         release {
-            debuggable false
-            minifyEnabled true
-            shrinkResources true
+            debuggable = false
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (releasePropertiesFile.exists()) {
                 signingConfig signingConfigs.release

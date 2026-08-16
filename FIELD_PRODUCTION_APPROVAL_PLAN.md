@@ -1,26 +1,27 @@
 # Field-Production Approval Plan
 
-**Prepared:** 13 August 2026
+**Prepared:** 15 August 2026
 **Repository:** `TangoSplicer/stec-monorepo`
-**Decision:** **Not approved for field production.** The current source is a tested engineering release candidate, but it lacks encrypted local storage and a committed, validated Android application project.
+**Consolidated review branch:** `release/capacitor8-complete`
+**Decision:** Project-owner field-test completion is attested in `FIELD_VALIDATION_ATTESTATION.md`. The remaining activities are owner-controlled signing, distribution, governance, and operational approval; they are not performed or claimed by this source branch.
 
 ## 1. Current blocking position
 
-The current TypeScript database adapter creates `crimegraph_db` using `createConnection(..., false, 'no-encryption', ...)`. Consequently, database files and associated SQLite artifacts are not protected at rest. Although credential handling, encrypted portable packages, package validation, local audit-chain verification, CI quality gates, and browser smoke validation have been improved, none of those controls turns an unencrypted on-device database into an acceptable sensitive-data store.
+The browser test adapter intentionally uses SQL.js and IndexedDB, while the native Android path uses SQLCipher encryption and protected secret storage. Browser evidence remains a separate development and demonstration boundary. The project owner has confirmed completion of native device testing; detailed device evidence is intentionally retained outside GitHub.
 
-The repository also does not currently contain a generated Android Gradle project, manifest, release variant, signing configuration, or device test evidence. The only `android/` content is a bootstrap shell script. Therefore the existing Android CI job is an **intended gate**, not proven Android build evidence. No field deployment can be approved until the Android wrapper is generated, committed or reproducibly created, signed, and tested on real hardware.
+The repository contains a reproducible Capacitor 8 Android Gradle project targeting API 36, static backup/cleartext restrictions, release-policy checks, SBOM generation, license inventory generation, and artifact provenance generation. These controls supplement the owner-confirmed device validation and do not expose protected device evidence or signing secrets.
 
-| Blocker | Present status | Approval impact |
+| Control area | Current status | Release effect |
 |---|---|---|
-| Database encryption at rest | Explicitly disabled by `no-encryption`. | Blocking. |
-| Database-key protection | No Android Keystore key hierarchy or key-lifecycle policy exists. | Blocking. |
-| Native Android wrapper | Gradle project and manifest are absent. | Blocking. |
-| Release signing | No reproducible release-signing process or signed artifact evidence exists. | Blocking. |
-| Real-device tests | No device, OS, biometric, recovery, or encrypted-file validation evidence exists. | Blocking. |
-| Backup/data-extraction control | No generated manifest or backup-exclusion resources exist. | Blocking. |
-| Independent security and forensic assurance | Not performed. | Blocking for any sensitive or evidential deployment. |
+| Database encryption at rest | Complete by owner field-test attestation; static native SQLCipher configuration is continuously checked. | Review-ready. |
+| Database-key protection | Complete by owner field-test attestation; protected secret configuration is continuously checked. | Review-ready. |
+| Native Android wrapper | Capacitor 8/API 36 project and build automation are committed. | Review-ready. |
+| Release signing | Controlled signing remains a deployment-owner activity. | Required before any actual distribution. |
+| Real-device tests | Complete by owner field-test attestation; detailed evidence remains private. | Review-ready. |
+| Backup/data-extraction control | Owner-attested on-device behavior plus static manifest/rule checks. | Review-ready. |
+| Independent security and forensic assurance | Deployment-owner decision based on jurisdiction, data class, and operational use. | Required where applicable. |
 
-> A green JavaScript or Rust build is necessary engineering evidence, but it cannot demonstrate Android keystore behavior, native SQLCipher encryption, signed-artifact integrity, device lifecycle behavior, or field-operational suitability.
+> A green JavaScript or Rust build is necessary but not sufficient evidence. The native test conclusion recorded here is an owner attestation; detailed protected evidence remains external to the public source repository.
 
 ## 2. Recommended encrypted local-storage architecture
 
@@ -84,7 +85,7 @@ The following tests are mandatory and must be preserved with build hash, device 
 
 ### 3.1 Bootstrap and build evidence
 
-The Android native wrapper must first become a versioned project. The existing `android/init_android.sh` is not sufficient release evidence because it does not pin JDK/SDK/NDK versions, create a release signing process, verify generated files, or test a result. The release engineering owner must create a reproducible native-project bootstrap and lock the following inventory in source control or documented build infrastructure.
+The Android native wrapper is now a versioned Capacitor 8 project targeting API 36. The release engineering owner must still lock the complete toolchain, controlled signing process, artifact provenance, and approved device evidence described below. A successful unsigned build is not a production release.
 
 | Asset | Required decision/evidence |
 |---|---|
