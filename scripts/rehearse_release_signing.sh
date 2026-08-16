@@ -28,6 +28,9 @@ for key in storeFile storePassword keyAlias keyPassword; do
 done
 
 store_file="$(sed -n 's/^storeFile=//p' "$SOURCE_PROPERTIES" | head -n 1)"
+if [[ "$store_file" != /* ]]; then
+  store_file="$(cd "$(dirname "$SOURCE_PROPERTIES")" && pwd)/$store_file"
+fi
 [[ -f "$store_file" ]] || fail 'the configured storeFile does not exist'
 
 apksigner_path="${APKSIGNER:-}"

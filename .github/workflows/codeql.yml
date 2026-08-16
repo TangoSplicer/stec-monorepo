@@ -2,7 +2,7 @@ name: STEC CodeQL Security Analysis
 
 on:
   push:
-    branches: [main, 'release/**']
+    branches: [main, 'upgrade/**', 'release/**']
   pull_request:
     branches: [main]
   schedule:

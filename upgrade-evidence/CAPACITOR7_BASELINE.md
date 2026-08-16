@@ -125,4 +125,4 @@ export default config;
 
 ## Baseline gates
 
-Captured after clean  on the upgrade branch. See the terminal evidence for individual exit codes.
+Captured after clean runs on the upgrade branch. See the terminal evidence for individual exit codes.
